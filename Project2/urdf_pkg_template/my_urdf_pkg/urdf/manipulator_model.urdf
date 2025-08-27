@@ -1,0 +1,208 @@
+<?xml version="1.0" ?>
+<robot name="my_manipulator">
+
+  <!-- Colors -->
+  <material name="Yellow">
+    <color rgba="1.0 1.0 0.0 1.0"/>
+  </material>
+
+  <material name="Blue">
+  <color rgba="0.0 0.0 1.0 1.0"/>      
+  </material>
+
+  <material name="Red">
+    <color rgba="1 0 0 1.0"/>      
+  </material>
+
+  <material name="Green">
+  <color rgba = "0 1 0 1.0"/>
+  </material>
+  
+  <material name="Magenta">
+  <color rgba="1 0 1 1"/>
+  </material>
+
+  <material name="White">
+    <color rgba="1 1 1 1"/>
+  </material>
+  
+  <material name="Cyan">
+    <color rgba = "0 1 1 1"/>
+  </material>
+
+  <material name="Purple">
+    <color rgba="0.5 0.0 0.5 1"/>
+  </material>
+
+<!-- Links -->
+  <link name="Base">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0.15"/>
+      <geometry>
+        <cylinder radius="0.5" length="0.3"/>
+      </geometry>
+      <material name="Yellow"/>
+    </visual>
+  </link>
+  
+
+  <link name="Link_1">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0.45"/>
+      <geometry>
+        <box size="0.3 0.3 0.9" />
+      </geometry>
+      <material name="Blue"/>
+    </visual>
+  </link>
+
+  <link name="Link_2">
+    <visual>
+      <origin rpy = " 0 0 0" xyz ="0.15 0.3 0"/>
+      <geometry>
+        <box size="0.3 0.9 0.3"/>
+      </geometry>
+      <material name="Green"/>
+    </visual>
+  </link>
+
+  <link name="Link_3">
+    <visual>
+      <origin rpy = " 0 0 0" xyz ="0 0 0"/>
+      <geometry>
+        <box size="0.3 0.3 0.3"/>
+      </geometry>
+      <material name="Red"/>
+    </visual>
+  </link>
+
+  <link name="Link_4">
+    <visual>
+      <origin rpy = " 0 0 0" xyz ="0 0 0.3"/>
+      <geometry>
+        <box size="0.3 0.3 0.6"/>
+      </geometry>
+      <material name="Cyan"/>
+    </visual>
+  </link>
+
+  <link name="Link_5">
+    <visual>
+      <origin rpy = " 0 0 0" xyz ="0 -0.3 0"/>
+      <geometry>
+        <box size="0.3 0.9 0.3"/>
+      </geometry>
+      <material name="Purple"/>
+    </visual>
+  </link>
+
+<!-- Joints -->
+  <joint name="Joint_1" type="revolute">
+    <parent link="Base"/>
+    <child link="Link_1"/>
+    <origin rpy="0 0 0" xyz="0 0 0.3"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="1000.0" lower="-3.14159265359" upper="3.14159265359" velocity="0.5" />
+  </joint>
+
+  <joint name="Joint_2" type="revolute">
+    <parent link="Link_1"/>
+    <child link="Link_2"/>
+    <origin rpy="0 0 0" xyz="0.15 0 0.75"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="1000.0" lower="-3.14159265359" upper="3.14159265359" velocity="0.5" />
+  </joint>
+
+  <joint name="Joint_3" type="revolute">
+    <parent link="Link_2"/>
+    <child link="Link_3"/>
+    <origin rpy="0 0 0" xyz="-0.15 0.6 0"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="1000.0" lower="-3.14159265359" upper="3.14159265359" velocity="0.5" />
+  </joint>
+
+
+  <joint name="Joint_4" type="revolute">
+    <parent link="Link_3"/>
+    <child link="Link_4"/>
+    <origin rpy="0 0 0" xyz="0 0 0.15"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="1000.0" lower="-3.14159265359" upper="3.14159265359" velocity="0.5" />
+  </joint>
+
+  <joint name="Joint_5" type="revolute">
+    <parent link="Link_4"/>
+    <child link="Link_5"/>
+    <origin rpy="0 0 0" xyz="-0.3 0 0.45"/>
+    <axis xyz="1 0 0"/>
+    <limit effort="1000.0" lower="-3.14159265359" upper="3.14159265359" velocity="0.5" />
+  </joint>
+
+<!-- Gripper links-->
+  <link name="Right_claw">
+    <visual>
+      <origin rpy = "0 0 0" xyz= "0 0 0"/>
+      <geometry>
+        <box size="0.05 0.4 0.1"/>
+      </geometry>
+      <material name="Magenta"/>
+    </visual>
+  </link>
+
+  <link name="Left_claw">
+    <visual>
+      <origin rpy = "0 0 0" xyz= "0 0 0"/>
+      <geometry>
+        <box size="0.05 0.4 0.1"/>
+      </geometry>
+      <material name="Magenta"/>
+    </visual>
+  </link>
+  
+  <link name="Gripper_base">
+    <visual>
+      <origin rpy = "1.57079632679  0 0" xyz = "0 -0.05 0"/>
+      <geometry>
+        <cylinder radius="0.15" length="0.1"/>
+      </geometry>
+      <material name="White"/>
+    </visual>
+  </link>
+
+<!-- Gripper joints -->
+
+  <joint name="Joint_6" type="revolute">
+    <parent link="Link_5"/>
+    <child link="Gripper_base"/>
+    <origin rpy="0 0 0" xyz="0 -0.75 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="1000.0" lower="-3.14159265359" upper="3.14159265359" velocity="0.5" />
+  </joint>
+
+
+  <joint name="Left_gripper_joint" type="prismatic">
+    <parent link="Gripper_base"/>
+    <child link="Left_claw"/>
+    <axis xyz="1 0.0 0.0"/>
+    <origin rpy="0 0 0" xyz="0.025 -0.25 0" />
+    <limit effort="1000.0" lower="0.0" upper="0.15" velocity="0.5"/>
+  </joint>
+
+  <joint name="Right_gripper_joint" type="prismatic">
+    <parent link="Gripper_base"/>
+    <child link="Right_claw"/>
+    <origin rpy="0 0 0" xyz="-0.025 -0.25 0" />
+    <axis xyz="1 0.0 0.0"/>
+    <limit effort="1000.0" lower="0.0" upper="0.15" velocity="0.5"/>
+    <mimic joint="Left_gripper_joint" multiplier="-1"/>
+  </joint> 
+
+
+
+
+
+
+
+
+
+</robot>
