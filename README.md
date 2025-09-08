@@ -1,4 +1,4 @@
-Project 1:
+##Project 1:
 Simple navigation of autonomous mobile robot.
 
 Project 2:
