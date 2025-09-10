@@ -1,1 +1,1 @@
-
+This is a simple project which taught me basics of ROS2 communication between nodes via topics. To verify progress along the way I used Rviz to simulate my manipulator. In all of the joints polynomial trajectory is used to reach the goal state in 3s. To see the final results, please open Results.mp4 file. 
