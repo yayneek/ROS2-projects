@@ -1,1 +1,0 @@
-# URDF package template
