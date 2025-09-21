@@ -589,62 +589,9 @@
         </joint>
 
 
-    <!-- ====================== ROS 2 CONTROL ====================== -->
-    <ros2_control name="GazeboSimSystem" type="system">
-      <hardware>
-        <plugin>gz_ros2_control/GazeboSimSystem</plugin>
-      </hardware>
-
-      <!-- 6DOF ramienia -->
-      <joint name="shoulder_pan_joint">
-        <command_interface name="position"/>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-      </joint>
-      <joint name="shoulder_lift_joint">
-        <command_interface name="position"/>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-      </joint>
-      <joint name="elbow_joint">
-        <command_interface name="position"/>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-      </joint>
-      <joint name="wrist_1_joint">
-        <command_interface name="position"/>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-      </joint>
-      <joint name="wrist_2_joint">
-        <command_interface name="position"/>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-      </joint>
-      <joint name="wrist_3_joint">
-        <command_interface name="position"/>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-      </joint>
-
-      <!-- chwytak RG2 (opcjonalnie sterowany osobnym kontrolerem) -->
-      <joint name="rg2_finger_joint1">
-        <command_interface name="position"/>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-      </joint>
-      <joint name="rg2_finger_joint2">
-        <command_interface name="position"/>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-      </joint>
-    </ros2_control>
-
-    <!-- plugin ładuje controller_manager i wskazany YAML -->
-    <plugin filename="libgz_ros2_control-system.so"
-            name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-      <parameters>/home/jan/ros2_jazzy_ws/src/project2/config/controller.yaml</parameters>
-    </plugin>
+        <plugin filename="libgz_ros2_control-system.so" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+            <parameters>/home/jan/ros2_jazzy_ws/install/project2/share/project2/config/controller.yaml</parameters>
+        </plugin>
 
     </model>
 </sdf>

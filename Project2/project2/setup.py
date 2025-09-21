@@ -14,6 +14,17 @@ setup(
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share',package_name, 'launch'), glob('launch/*.py')),
         
+        # Meshes:
+        ('share/' + package_name + '/models/ur5_rg2/meshes/visual/ur5', 
+            glob('models/ur5_rg2/meshes/visual/ur5/*.dae')),
+        ('share/' + package_name + '/models/ur5_rg2/meshes/visual/rg2', 
+            glob('models/ur5_rg2/meshes/visual/rg2/*.dae')),
+        # URDF:
+        ('share/' + package_name + '/models/ur5_rg2', 
+            glob('models/ur5_rg2/*.urdf')),
+        # YAML:
+        ('share/' + package_name + '/config', glob('config/*.yaml'))
+        
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -24,6 +35,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'gui_to_gazebo = project2.GUI_to_Gazebo:main'
         ],
     },
 )

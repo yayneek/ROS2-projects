@@ -1,7 +1,9 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, ExecuteProcess
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.parameter_descriptions import ParameterValue
+from launch.substitutions import Command
 from ament_index_python.packages import get_package_share_directory
 import os
 
@@ -58,15 +60,20 @@ def generate_launch_description():
         package='joint_state_publisher_gui',
         executable='joint_state_publisher_gui',
         name='joint_state_publisher_gui',
-        arguments=[robot_model_sdf]
     )
 
     # robot_state_publisher:
+    robot_description = ParameterValue(
+        robot_model_urdf,
+        value_type=str
+    )
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         name='robot_state_publisher',
-        arguments=[robot_model_urdf],
+        parameters=[
+            {'robot_description': open(robot_model_urdf).read()}
+        ],
         output="screen"
     )
 
@@ -85,17 +92,28 @@ def generate_launch_description():
         arguments=['-d', str(rviz_config_path)],
     )
 
-    # Load controllers node:
-    load_controllers_node = Node(
-        
+    # Loading controllers:
+    arm_controller_load = ExecuteProcess(
+        cmd = ["ros2", "run", "controller_manager", "spawner", "arm_controller"],
+        output = "screen"
     )
 
+    # gripper_controller_load = ...
+
+    # Controllers activation:
+    arm_controller_activation = ExecuteProcess(
+        cmd = ["ros2", "control", "set_controller_state"]
+    )
+    
+
     return LaunchDescription([
-        gz_sim_launch,
+        joint_state_publisher_node,
+        rviz_arg,
+        # Gazebo has to be launched later 
+        gz_sim_launch,        
         robot_spawn_node,
         cube_spawn_node,
-        robot_state_publisher_node,
-        #joint_state_publisher_node,
-        rviz_arg,
         rviz_node,
+        robot_state_publisher_node,
+        #arm_controller_load
     ])
