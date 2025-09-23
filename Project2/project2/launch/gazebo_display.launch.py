@@ -9,6 +9,8 @@ import os
 
 
 def generate_launch_description():
+    package_share = get_package_share_directory('project2')
+
     # === Gazebo ===
     gz_sim_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -24,8 +26,8 @@ def generate_launch_description():
     )
 
     # Robot model spawn:
-    robot_model_sdf = os.path.join('/home/jan/ros2_jazzy_ws/src/project2/models/ur5_rg2','model.sdf')
-    robot_model_urdf = os.path.join('/home/jan/ros2_jazzy_ws/src/project2/models/ur5_rg2','model_minimal.urdf')
+    robot_model_sdf = os.path.join(package_share,'models','ur5_rg2','model.sdf')
+    robot_model_urdf = os.path.join(package_share,'models','ur5_rg2','model_minimal.urdf')
     robot_spawn_node = Node(
         package='ros_gz_sim',
         executable='create',
@@ -39,7 +41,7 @@ def generate_launch_description():
     )
 
     # Cube model spawn:
-    cube_model_sdf = os.path.join('/home/jan/ros2_jazzy_ws/src/project2/models/cube', 'model.sdf')
+    cube_model_sdf = os.path.join(package_share,'models','cube','model.sdf')
     cube_spawn_node = Node(
         package='ros_gz_sim',
         executable='create',
@@ -78,7 +80,7 @@ def generate_launch_description():
     )
 
     # Rviz node:
-    rviz_config_path = os.path.join('/home/jan/ros2_jazzy_ws/src/project2/rviz/urdf.rviz')
+    rviz_config_path = os.path.join(package_share,'rviz','urdf.rviz')
     rviz_arg = DeclareLaunchArgument(
         name='rvizconfig',
         default_value=str(rviz_config_path),

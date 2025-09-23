@@ -13,17 +13,29 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share',package_name, 'launch'), glob('launch/*.py')),
-        
-        # Meshes:
+        # Rviz:
+        ('share/' + package_name + '/rviz', 
+        glob('rviz/*.rviz')),
+        # SDF:
+        ('share/' + package_name + '/models/ur5_rg2', 
+        glob('models/ur5_rg2/*.sdf')),
+        # Visual meshes:
         ('share/' + package_name + '/models/ur5_rg2/meshes/visual/ur5', 
             glob('models/ur5_rg2/meshes/visual/ur5/*.dae')),
         ('share/' + package_name + '/models/ur5_rg2/meshes/visual/rg2', 
             glob('models/ur5_rg2/meshes/visual/rg2/*.dae')),
+        # Colision meshes:
+        ('share/' + package_name + '/models/ur5_rg2/meshes/collision/ur5', 
+            glob('models/ur5_rg2/meshes/collision/ur5/*.stl')),
+        ('share/' + package_name + '/models/ur5_rg2/meshes/collision/rg2', 
+            glob('models/ur5_rg2/meshes/collision/rg2/*.stl')),        
         # URDF:
         ('share/' + package_name + '/models/ur5_rg2', 
             glob('models/ur5_rg2/*.urdf')),
         # YAML:
-        ('share/' + package_name + '/config', glob('config/*.yaml'))
+        ('share/' + package_name + '/config', glob('config/*.yaml')),
+        # Cube sdf model:
+        ('share/' + package_name + '/models/cube', glob('models/cube/*.sdf'))
         
     ],
     install_requires=['setuptools'],

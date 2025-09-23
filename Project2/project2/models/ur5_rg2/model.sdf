@@ -590,7 +590,7 @@
 
 
         <plugin filename="libgz_ros2_control-system.so" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-            <parameters>/home/jan/ros2_jazzy_ws/install/project2/share/project2/config/controller.yaml</parameters>
+            <parameters>/home/jan/ros2_ws/install/project2/share/project2/config/controller.yaml</parameters>
         </plugin>
 
     </model>
