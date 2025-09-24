@@ -35,7 +35,11 @@ setup(
         # YAML:
         ('share/' + package_name + '/config', glob('config/*.yaml')),
         # Cube sdf model:
-        ('share/' + package_name + '/models/cube', glob('models/cube/*.sdf'))
+        ('share/' + package_name + '/models/other', glob('models/other/*.sdf')),
+        # Sensors:
+        ('share/' + package_name + '/sensors', glob('sensors/*.sdf')),
+        # Worlds:
+        ('share/' + package_name + '/worlds', glob('worlds/*.world'))
         
     ],
     install_requires=['setuptools'],
