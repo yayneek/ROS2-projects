@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<sdf version = "1.7">
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+        <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <model name='lidar'>
+        <pose>0 0 0 0 0 0</pose>
+        <link name="lidar_link">
+
+            <visual name="lidar_link_visual">
+                <geometry>
+                    <cylinder>
+                        <radius>0.1</radius>
+                        <length>0.2</length>
+                    </cylinder>
+                </geometry>
+            </visual>
+
+            <collision name="lidar_link_collision">
+                <geometry>
+                    <cylinder>
+                        <radius>0.1</radius>
+                        <length>0.2</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+
+            <sensor name="lidar_sensor" type="gpu_lidar">
+                <pose>0 0 0 0 0 -1.57079632679</pose>
+                <update_rate>10</update_rate>
+                <lidar>
+                    <scan>
+                        <horizontal>
+                            <samples>900</samples>
+                            <min_angle>-0.5 </min_angle>
+                            <max_angle>0.5 </max_angle>
+                        </horizontal>
+                    </scan>
+                    <range>
+                        <min>0.01</min>
+                        <max>0.6</max>
+                    </range>
+                </lidar>
+                <alwaysOn>1</alwaysOn>
+                <visualize>true</visualize>
+                <topic>lidar_x</topic>
+            </sensor>
+
+
+        </link>
+
+
+
+    </model>
+</sdf>

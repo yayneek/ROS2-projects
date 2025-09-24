@@ -1,0 +1,45 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 250
+
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+
+    gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+
+arm_controller:
+  ros__parameters:
+    joints:
+      - elbow_joint
+      - shoulder_lift_joint
+      - shoulder_pan_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    constraints:
+      stopped_velocity_tolerance: 0.01
+      goal_time: 3.0
+    allow_partial_joints_goal: false
+
+gripper_controller:
+  ros__parameters:
+    joints:
+      - rg2_finger_joint1
+      - rg2_finger_joint2
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    constraints:
+      stopped_velocity_tolerance: 0.01
+      goal_time: 1.0
+    allow_partial_joints_goal: true
