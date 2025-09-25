@@ -9,5 +9,5 @@ Setting up connection between ros2 and gazebo systems using gz_ros2_control. Res
 ## 5: 
 Including LiDAR scanners to the world inside Gazebo world. With scanners in the world it was necessary to transfer message type from scanners to location on XY plane. End effect is a node that subscribes to both scanners data and determines location of the center of the cuboid. 
 ## 6: 
-Using MoveIt2 to define trajectory using scanners data and placing object inside the goal location. 
+Originally Moveit2 was meant to be used to solve for InverseKinematics. Unfortunately, due to some instabilites and conflicts inside Moveit2 package it was decided to create IK solver and controllers manually. To achieve this general equations of motion need to be defined and used to solve for IK. Solving IK will be achieved using transformation vectors from Rviz2. Then couple of basic poses for manipulator will be defined e.g. 'ready' or 'goal_poistion'. Finally controller will be properly set up using propper kp kd settings. 
 
