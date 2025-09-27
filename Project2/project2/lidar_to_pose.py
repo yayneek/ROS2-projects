@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import LaserScan
 from message_filters import Subscriber, ApproximateTimeSynchronizer
+from geometry_msgs.msg import Pose2D
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,9 +17,16 @@ class Lidar_to_Pose(Node):
 
         ats = ApproximateTimeSynchronizer([sub_x, sub_y], queue_size=10, slop=0.1)
         ats.registerCallback(self.synced_callback)
- 
-        plt.ion()
-        self.fig, self.ax = plt.subplots()
+
+
+        
+        self.publisher = self.create_publisher(
+            Pose2D,
+            '/position_from_lidar',
+            10
+
+        )
+
 
     def synced_callback(self, scan_x: LaserScan, scan_y: LaserScan):
         points_x = self.scan_to_points(scan_x, [0, 1, 0.1], math.pi*3/2)
@@ -26,19 +34,25 @@ class Lidar_to_Pose(Node):
         points = np.vstack([points_x, points_y])
 
         obb = self.obb_pca(points)
-        center = obb['center']
-        self.get_logger().info(f"OBB center: {center}, width: {obb['width']:.2f}, height: {obb['height']:.2f}, angle: {obb['angle']:.2f} rad")
+        self.center = obb['center']
+        self.angle = obb['angle']
 
+        point_to_publish = Pose2D()
+        point_to_publish.x = self.center[0]
+        point_to_publish.y = self.center[1]
+        point_to_publish.theta = self.angle
+
+        self.publisher.publish(point_to_publish)
 
         # czyszczenie wykresu i rysowanie nowych punktów
-        self.ax.clear()
-        self.ax.scatter(*zip(*points_x), s=2, c='r', label="Lidar X")
-        self.ax.scatter(*zip(*points_y), s=2, c='b', label="Lidar Y")
-        self.ax.legend()
-        self.ax.set_aspect('equal')
-        self.ax.set_title("Fuzja dwóch lidarów")
-        plt.draw()
-        plt.pause(0.01)  # odświeżenie wykresu
+        # self.ax.clear()
+        # self.ax.scatter(*zip(*points_x), s=2, c='r', label="Lidar X")
+        # self.ax.scatter(*zip(*points_y), s=2, c='b', label="Lidar Y")
+        # self.ax.legend()
+        # self.ax.set_aspect('equal')
+        # self.ax.set_title("Fuzja dwóch lidarów")
+        # plt.draw()
+        # plt.pause(0.01)  # odświeżenie wykresu
     
     def scan_to_points(self, scan: LaserScan, scanner_position, scanner_rotation):
         def rot_mat(angle):

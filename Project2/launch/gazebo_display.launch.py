@@ -5,6 +5,8 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.parameter_descriptions import ParameterValue
 from launch.substitutions import Command, LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
+import math
+import random
 import os
 
 
@@ -102,6 +104,9 @@ def generate_launch_description():
 
     # Cube model spawn:
     cube_model_sdf = os.path.join(package_share,'models','other','cube.sdf')
+    randomize_cube_position_x = random.uniform(-0.2, 0.1)
+    randomize_cube_position_y = random.uniform(0.25, 0.5)
+    randomize_cube_angle = random.uniform(0, math.pi)
     cube_spawn_node = Node(
         package='ros_gz_sim',
         executable='create',
@@ -110,9 +115,10 @@ def generate_launch_description():
         arguments=[
             '-name', 'cube',
             '-file', cube_model_sdf,
-            '-x', '0.0',
-            '-y', '0.5',
+            '-x', str(randomize_cube_position_x),
+            '-y', str(randomize_cube_position_y),
             '-z', '0.1',
+            '-Y', str(randomize_cube_angle),
             '-world','empty'
         ]
     )

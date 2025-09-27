@@ -15,29 +15,51 @@ class Joint_State_Publisher_GUI_to_Gazebo(Node):
         )
         
 
-        self.publisher = self.create_publisher(
+        self.publisher_arm_controller = self.create_publisher(
             JointTrajectory,
             '/arm_controller/joint_trajectory',
             10
         )
 
+        self.publisher_gripper_controller = self.create_publisher(
+            JointTrajectory,
+            '/gripper_controller/joint_trajectory',
+            10
+        )
+
     def joint_state_callback(self, msg: JointState):
-        to_pass = JointTrajectory()
-        to_pass.joint_names = [
+        arm_controller_data = JointTrajectory()
+        gripper_controller_data = JointTrajectory()
+
+        arm_controller_data.joint_names = [
             'shoulder_pan_joint',
             'shoulder_lift_joint',
             'elbow_joint',
             'wrist_1_joint',
             'wrist_2_joint',
-            'wrist_3_joint'
+            'wrist_3_joint',
+        ]
+        gripper_controller_data.joint_names = [
+            'rg2_finger_joint1',
+            'rg2_finger_joint2'
         ]
 
-        point = JointTrajectoryPoint()
-        point.positions = list(msg.position[:6])
-        point.time_from_start.sec = 1
+        # Arm point
+        arm_point = JointTrajectoryPoint()
+        arm_point.positions = list(msg.position[:6])
+        arm_point.time_from_start.sec = 1
 
-        to_pass.points.append(point)
-        self.publisher.publish(to_pass)
+        # Gripper point
+        gripper_point = JointTrajectoryPoint()
+        gripper_point.positions = list(msg.position[6:])
+        gripper_point.time_from_start.sec = 1
+
+        arm_controller_data.points.append(arm_point)
+        gripper_controller_data.points.append(gripper_point)
+
+        self.publisher_arm_controller.publish(arm_controller_data)
+        self.publisher_gripper_controller.publish(gripper_controller_data)
+
 
 def main(args = None):
     rclpy.init(args=args)
