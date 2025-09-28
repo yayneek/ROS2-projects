@@ -47,12 +47,12 @@ class Joint_State_Publisher_GUI_to_Gazebo(Node):
         # Arm point
         arm_point = JointTrajectoryPoint()
         arm_point.positions = list(msg.position[:6])
-        arm_point.time_from_start.sec = 1
+        arm_point.time_from_start.sec = 3
 
         # Gripper point
         gripper_point = JointTrajectoryPoint()
         gripper_point.positions = list(msg.position[6:])
-        gripper_point.time_from_start.sec = 1
+        gripper_point.time_from_start.sec = 3
 
         arm_controller_data.points.append(arm_point)
         gripper_controller_data.points.append(gripper_point)

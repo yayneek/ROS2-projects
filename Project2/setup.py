@@ -63,6 +63,7 @@ setup(
         'console_scripts': [
             'gui_to_gazebo = project2.GUI_to_Gazebo:main',
             'lidar_to_pose = project2.lidar_to_pose:main',
+            'robot_server = project2.robot_control_server:main'
         ],
     },
 )
