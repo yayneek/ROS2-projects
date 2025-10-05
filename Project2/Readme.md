@@ -11,3 +11,6 @@ Including LiDAR scanners to the world inside Gazebo world. With scanners in the 
 ## 6: 
 Originally Moveit2 was meant to be used to solve for InverseKinematics. Unfortunately, due to some instabilites and conflicts inside Moveit2 package it was decided to create IK solver and controllers manually. To achieve this general equations of motion need to be defined and used to solve for IK. Solving IK will be achieved using transformation vectors from Rviz2. Then couple of basic poses for manipulator will be defined e.g. 'ready' or 'goal_poistion'. Finally controller will be properly set up using propper kp kd settings. 
 
+## Current problem:
+Due to no IK package some sort of trajectory planning algorithm needs to be developed. Probably connecting two poses: ready and place. Any other configurations will end in either of these poses.
+
