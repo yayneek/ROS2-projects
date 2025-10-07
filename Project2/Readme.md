@@ -1,3 +1,6 @@
+# To see the results please see: 
+
+
 ## 1: 
 Selection of appropriate robot model for the project. The model has to have all physical parameters defined, not only visual ones. UR5 with RG2 gripper was chosen. 
 ## 2: 
