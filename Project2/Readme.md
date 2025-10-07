@@ -11,3 +11,10 @@ Including LiDAR scanners to the world inside Gazebo world. With scanners in the 
 ## 6: 
 Originally Moveit2 was meant to be used to solve for InverseKinematics. Unfortunately, due to some instabilites and conflicts inside Moveit2 package it was decided to create IK solver and controllers manually. To achieve this general equations of motion need to be defined and used to solve for IK. Solving IK will be achieved using transformation vectors from Rviz2. Then couple of basic poses for manipulator will be defined e.g. 'ready' or 'goal_poistion'. Finally controller will be properly set up using propper kp kd settings. 
 
+## 7: 
+The project is finished. Robot can find location of the cube using lidar sensors and place it in the goal location. However this project can be extended and improved over time. Possible directions:
+- Improvement of the speed of the whole motion,
+- More efficient movement of the manipulator (sometimes it takes wrong angles to reach goal pose),
+- Simultaneous movement of the gripper and joints inside the arm,
+- etc
+  
