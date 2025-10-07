@@ -1,6 +1,6 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, ExecuteProcess
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.parameter_descriptions import ParameterValue
 from launch.substitutions import Command, LaunchConfiguration
@@ -104,8 +104,8 @@ def generate_launch_description():
 
     # Cube model spawn:
     cube_model_sdf = os.path.join(package_share,'models','other','cube.sdf')
-    randomize_cube_position_x = random.uniform(-0.2, 0.1)
-    randomize_cube_position_y = random.uniform(0.25, 0.5)
+    randomize_cube_position_x = random.uniform(0.1, 0.2)
+    randomize_cube_position_y = random.uniform(0.35, 0.4)
     randomize_cube_angle = random.uniform(0, math.pi)
     cube_spawn_node = Node(
         package='ros_gz_sim',
@@ -185,6 +185,41 @@ def generate_launch_description():
             ]
     )
 
+    # Spawning controllers for arm and gripper:
+    arm_controller_spawn = Node(
+        package='controller_manager',
+        executable='spawner',
+        name='spawn_arm_controller',
+        arguments=['arm_controller']
+    )
+    gripper_controller_spawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        name='gripper_controller_spawner',
+        arguments=['gripper_controller']
+    )
+
+    # lidar to pose node:
+    lidar_to_pose_node = Node(
+        package='project2',
+        executable='lidar_to_pose',
+        name='lidar_to_pose',
+    )
+
+    # gui to gazebo node:
+    gui_to_gazebo_node = Node(
+        package='project2',
+        executable='gui_to_gazebo',
+        name='gui_to_gazebo'
+    )
+
+    # Nodes that need delay:
+    delayed_group = TimerAction(
+        period = 6.0,
+        actions=[
+            lidar_to_pose_node,
+        ]
+    )
 
     return LaunchDescription([
         joint_state_publisher_node,
@@ -201,4 +236,8 @@ def generate_launch_description():
         rviz_node,
         robot_state_publisher_node,
         ros_gz_bridge_node,
+        arm_controller_spawn,
+        gripper_controller_spawner,
+        gui_to_gazebo_node,
+        delayed_group
     ])

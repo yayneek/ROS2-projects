@@ -16,9 +16,11 @@ class robot_control(Node):
 
         # GLOBAL CONSTANTS:
         self.dt = 0.01 # dt of the simulation
-        self.t = 3     # desired reaching time
+        self.t = 7     # desired reaching time
         self.todo = False
         self.i = 0
+        self.task_queue = []
+        self.current_task = None
 
 
         # JointState
@@ -44,7 +46,7 @@ class robot_control(Node):
         )
         self.subsciber_joint_state = self.create_subscription(
             JointState, 
-            '/joint_state',
+            '/joint_states',
             self.joint_state_subscription_callback,
             10
         )
@@ -70,26 +72,42 @@ class robot_control(Node):
         )
         #
         # Arm:
-        self.set_robot_pose_ready = self.create_service(
+        self.set_robot_pose_ready_srv = self.create_service(
             Trigger,
             'set_robot_pose_ready',
             self.set_robot_pose_ready
 
         )
-        self.set_robot_pose_place = self.create_service(
+        self.set_robot_pose_place_srv = self.create_service(
             Trigger,
             'set_robot_pose_place',
             self.set_robot_pose_place
         )
-        self.set_robot_pose_up = self.create_service(
+        self.set_robot_pose_up_srv = self.create_service(
             Trigger,
             'set_robot_pose_up',
             self.set_robot_pose_up
         )
-        self.set_robot_pose_pick = self.create_service(
+        self.set_robot_pose_pick_srv = self.create_service(
             Trigger, 
             'set_robot_pose_pick',
             self.set_robot_pose_pick
+        )
+        self.set_robot_pose_side_srv = self.create_service(
+            Trigger, 
+            'set_robot_pose_side',
+            self.set_robot_pose_side
+        )
+        self.set_robot_movement_srv = self.create_service(
+            Trigger,
+            'set_robot_move',
+            self.set_robot_pick_and_place
+        )
+        # Sequences:
+        self.robot_sequence_srv = self.create_service(
+            Trigger,
+            'set_robot_sequence_ready_pick_side',
+            self.sequence_pick_and_place
         )
         # ----------------------------------------------------------------------------
         # Poses of the robot:
@@ -98,30 +116,56 @@ class robot_control(Node):
         self.orientation_ready = Rot.from_quat(np.array([0, np.sqrt(2)/2, 0, np.sqrt(2)/2])).as_matrix()
         
         # Place:
-        self.position_place = np.array([0, -0.5, 0.7])
+        self.position_place = np.array([0, 0.5, 0.25])
         self.orientation_place = Rot.from_quat(np.array([0, np.sqrt(2)/2, 0, np.sqrt(2)/2])).as_matrix()
+        self.joint_config_place = np.array([
+            -4.49231686745526,
+            -0.10497362195360764,
+            -1.9411911241633821,
+            0.47536841837763966,
+            1.570796332178944,
+            -2.9215205409977476
+        ])
 
         # Up:
         self.position_up = np.array([0, 0.19145, 1.0011])
         self.orientation_up = Rot.from_quat(np.array([0.5, 0.5, 0.5, 0.5])).as_matrix()
+
+        # Side:
+        self.position_side = np.array([-0.5, 0, 0.5])
+        self.orientation_side = Rot.from_quat(np.array([0, np.sqrt(2)/2, 0, np.sqrt(2)/2])).as_matrix()
         # ----------------------------------------------------------------------------
         # Initial publication:
         self.publisher.publish(self.joint_state)  
 
+    def set_robot_pick_and_place(self, request, response):
+        self.set_robot_pose_ready(request, response)
+        self.set_robot_pose_pick(request, response)
+        self.close_gripper(request, response)
+        return response
+
     def timer_callback(self):
         self.joint_state.header.stamp = self.get_clock().now().to_msg()
-        if self.todo == True:
+
+        # If there's movement going on:
+        if self.todo:
             self.joint_state.position = np.hstack([
-                self.q[self.i, :],
+                self.q[-1, :],
                 [self.joint_state.position[6], self.joint_state.position[7]]
                 ])
             self.i = self.i + 1
 
-            if self.i >= int(self.t/self.dt):
-                self.get_logger().info('Task complete!')
+            if self.i >= int(self.t / self.dt):
+                self.get_logger().info(f'Task {self.current_task} is complete!')
                 self.i = 0
                 self.todo = False
+                self.current_task = None
 
+        elif self.task_queue:
+            next_task = self.task_queue.pop(0)
+            self.get_logger().info(f'Starting task: {next_task}')
+            getattr(self, next_task)()
+            self.current_task = next_task
         
         self.publisher.publish(self.joint_state)
 
@@ -201,10 +245,8 @@ class robot_control(Node):
 
     def joint_trajectory(self, start_joint_config, goal_joint_config, t, dt):
         """
-        start_position:         np.array    (3,),
-        start_orientation:      matrix      (3,3),
-        goal_position:          np.array    (3,),
-        goal_orientation:       matrix      (3,3),
+        start_joint_config (6,),
+        goal_joint_condfig (6,),
 
         t:              float, 
         dt:             float,
@@ -235,6 +277,7 @@ class robot_control(Node):
 
     def set_robot_pose_ready(self, request, response):
         start_joint_configuration = self.joint_state.position[:6]
+        inverse_kinematics_guess = np.array([math.pi/2, -0.3, -1.6, 0.5, 1.73, -math.pi])
         goal_joint_configuration = self.inverse_kinematics(self.position_ready, self.orientation_ready, start_joint_configuration)
 
         self.q = self.joint_trajectory(start_joint_configuration, goal_joint_configuration, self.t, self.dt)
@@ -246,8 +289,7 @@ class robot_control(Node):
     
     def set_robot_pose_place(self, request, response):
         start_joint_configuration = self.joint_state.position[:6]
-        goal_joint_configuration = self.inverse_kinematics(self.position_place, self.orientation_place, start_joint_configuration)
-
+        goal_joint_configuration = self.joint_config_place
         self.q = self.joint_trajectory(start_joint_configuration, goal_joint_configuration, self.t, self.dt)
 
         self.todo = True
@@ -284,8 +326,8 @@ class robot_control(Node):
 
     def lidar_subscription_callback(self,msg: Pose2D):
         
-        self.target_lidar_position = np.array([msg.x, msg.y, 0.35])
-        self.target_lidar_orientation = Rot.from_rotvec([0,0,msg.theta + math.pi/4]).as_matrix()
+        self.target_lidar_position = np.array([msg.x, msg.y, 0.27])
+        self.target_lidar_orientation = Rot.from_rotvec([0,0,msg.theta]).as_matrix()
 
     def joint_state_subscription_callback(self, msg: JointState):
         self.current_joint_state = msg  
@@ -332,6 +374,75 @@ class robot_control(Node):
             delta = (delta + np.pi) % (2 * np.pi) - np.pi
             adjusted[i] = current[i] + delta
         return adjusted
+
+    def set_robot_pose_side(self, request, response):
+        start_joint_configuration = self.joint_state.position[:6]
+        goal_joint_configuration = self.inverse_kinematics(self.position_side, self.orientation_side, start_joint_configuration)
+
+        self.q = self.joint_trajectory(start_joint_configuration, goal_joint_configuration, self.t, self.dt)
+
+        self.todo = True
+        response.success = True
+        response.message = 'Robot is set to pose SIDE'
+        return response
+
+    def task_ready(self):
+        start = self.joint_state.position[:6]
+        goal = self.inverse_kinematics(self.position_ready, self.orientation_ready, start)
+        self.q = self.joint_trajectory(start, goal, self.t, self.dt)
+        self.todo = True
+    
+    def task_pick(self):
+        start = self.joint_state.position[:6]
+        downwards_orientation = self.orientation_ready
+        goal_orientation = self.target_lidar_orientation @ downwards_orientation
+        goal = self.inverse_kinematics(self.target_lidar_position, goal_orientation, start)
+        self.q = self.joint_trajectory(start, goal, self.t, self.dt)
+        self.todo = True
+
+    def task_side(self):
+        start = self.joint_state.position[:6]
+        goal = self.inverse_kinematics(self.position_side, self.orientation_side, start)
+        self.q = self.joint_trajectory(start, goal, self.t, self.dt)
+        self.todo = True
+    
+    def task_open_gripper(self):
+        self.joint_state.position[6] = 1.180
+        self.joint_state.position[7] = 1.180
+        self.todo = True
+    
+    def task_close_gripper(self):
+        self.joint_state.position[6] = 0.0
+        self.joint_state.position[7] = 0.0
+        self.todo = True      
+
+    def task_place(self):
+        start = self.joint_state.position[:6]
+        goal = self.joint_config_place
+        self.q = self.joint_trajectory(start, goal, self.t, self.dt)
+        self.todo = True
+
+    def task_up(self):
+        start = self.joint_state.position[:6]
+        goal = np.zeros(6)
+        self.q = self.joint_trajectory(start, goal, self.t, self.dt)
+        self.todo = True
+
+    def sequence_pick_and_place(self, request, response):
+        self.task_queue=[
+            'task_ready',
+            'task_open_gripper',
+            'task_pick',
+            'task_close_gripper',
+            'task_side',
+            'task_place',
+            'task_open_gripper',
+            'task_up',
+            'task_close_gripper',
+        ]
+        response.success = True
+        response.message = 'Sequence started!'
+        return response
 
 
 def main(args = None):

@@ -288,7 +288,7 @@
                     <effort>150</effort>
                     <lower>-6.28319</lower>
                     <upper>6.28319</upper>
-                    <velocity>3.15</velocity>
+                    <velocity>103.15</velocity>
                 </limit>
                 <dynamics>
                     <spring_reference>0</spring_reference>
@@ -591,6 +591,7 @@
 
         <plugin filename="libgz_ros2_control-system.so" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
             <parameters>/home/jan/ros2_jazzy_ws/install/project2/share/project2/config/controller.yaml</parameters>
+            <position_proportional_gain>1.5</position_proportional_gain>
         </plugin>
 
     </model>

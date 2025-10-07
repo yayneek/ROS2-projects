@@ -4,6 +4,7 @@ from sensor_msgs.msg import LaserScan
 from message_filters import Subscriber, ApproximateTimeSynchronizer
 from geometry_msgs.msg import Pose2D
 import math
+import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -33,7 +34,7 @@ class Lidar_to_Pose(Node):
         points_y = self.scan_to_points(scan_y, [0.75, 0.5, 0.1], math.pi)
         points = np.vstack([points_x, points_y])
 
-        obb = self.obb_pca(points)
+        obb = self.obb_cv(points)
         self.center = obb['center']
         self.angle = obb['angle']
 
@@ -116,6 +117,45 @@ class Lidar_to_Pose(Node):
             'height': height,
             'angle': angle,
             'corners': corners_global  # 4x2
+        }
+
+    def obb_cv(self, points):
+        pts = np.asarray(points, dtype=np.float32)
+
+        # Sprawdzenie, czy mamy wystarczająco dużo punktów
+        if pts.shape[0] < 3:
+            return {
+                'center': np.array([np.nan, np.nan]),
+                'width': 0.0,
+                'height': 0.0,
+                'angle': 0.0,
+                'corners': np.zeros((4, 2))
+            }
+
+        # Dopasowanie minimalnego prostokąta obrotowego
+        rect = cv2.minAreaRect(pts)  # ((cx, cy), (width, height), angle)
+        (cx, cy), (w, h), angle = rect
+
+        # Konwersja kątów OpenCV do „intuicyjnego” systemu
+        # OpenCV zwraca kąt w stopniach: zakres (-90, 0]
+        # Dla łatwiejszego użycia zamieniamy na radiany
+        angle_rad = np.deg2rad(angle)
+
+        # Upewniamy się, że width >= height (jeśli nie, obracamy o 90°)
+        if w < h:
+            w, h = h, w
+            angle_rad += np.pi / 2
+
+        # Pobranie rogów prostokąta
+        box = cv2.boxPoints(rect)
+        box = np.array(box)
+
+        return {
+            'center': np.array([cx, cy]),
+            'width': w,
+            'height': h,
+            'angle': angle_rad,
+            'corners': box
         }
 
 
